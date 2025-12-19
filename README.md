@@ -30,7 +30,7 @@ Acest proiect implementează un pipeline complet de **Fuziune Senzorială** (Sen
 
 ```bash
 
-git clone <link-ul-tau-github>
+git clone
 cd LidarCameraCalib
 
 mkdir build && cd build
