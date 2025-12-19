@@ -4,7 +4,7 @@
 #include <cstring>
 #include <iomanip> // Pentru std::fixed
 
-// Definiții pentru librăriile de imagine
+// Definitii pentru librariile de imagine
 #define STB_IMAGE_IMPLEMENTATION
 #include "../include/stb_image.h"
 
@@ -13,7 +13,7 @@
 
 #include "../include/common.h"
 
-// --- DECLARAȚII FUNCȚII EXTERNE (din kernels.cu) ---
+// --- DECLARARE FUNCTII EXTERNE (din kernels.cu) ---
 extern "C" void ProjectPointsCUDA(
     const float4* d_points, 
     int numPoints, 
@@ -34,14 +34,14 @@ extern "C" void OverlayPointsCUDA(
     uchar3 color
 );
 
-// --- HELPER CPU: Verificare Matematică ---
+// --- HELPER CPU: Verificare Matematica ---
 void ProjectPointCPU(float x, float y, float z, const float* R, const float* t, const CameraIntrinsics& K, float& u, float& v) {
     // 1. Transformare în coordonatele camerei
     float x_cam = R[0]*x + R[1]*y + R[2]*z + t[0];
     float y_cam = R[3]*x + R[4]*y + R[5]*z + t[1];
     float z_cam = R[6]*x + R[7]*y + R[8]*z + t[2];
 
-    // 2. Proiecție
+    // 2. Proiectie
     if (z_cam > 0.1f) {
         u = K.fx * (x_cam / z_cam) + K.cx;
         v = K.fy * (y_cam / z_cam) + K.cy;
@@ -52,7 +52,7 @@ void ProjectPointCPU(float x, float y, float z, const float* R, const float* t, 
 
 int main() {
     // ---------------------------------------------------------
-    // 1. ÎNCĂRCARE IMAGINE INPUT
+    // 1. INCARCARE IMAGINE INPUT
     // ---------------------------------------------------------
     int width, height, channels;
     unsigned char* h_img_data = stbi_load("input.jpg", &width, &height, &channels, 3);
@@ -64,7 +64,7 @@ int main() {
     std::cout << "[Setup] Imagine incarcata: " << width << "x" << height << " (" << channels << " channels)\n";
 
     // ---------------------------------------------------------
-    // 2. CONFIGURARE PARAMETRI CAMERĂ
+    // 2. CONFIGURARE PARAMETRI CAMERA
     // ---------------------------------------------------------
     CameraIntrinsics K;
     // Estimare Focal Length (de obicei e width * 0.8 pentru telefoane/webcam)
@@ -73,7 +73,7 @@ int main() {
     K.cx = width / 2.0f;
     K.cy = height / 2.0f;
 
-    // Extrinseci: Setăm la 0 pentru a alinia tunelul virtual cu centrul camerei
+    // Extrinseci: Setam la 0 pentru a alinia tunelul virtual cu centrul camerei
     float h_R[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float h_t[3] = {0.0f, 0.0f, 0.0f}; 
 
@@ -84,15 +84,15 @@ int main() {
     std::vector<float4> h_points;
     
     const int num_rings = 64;       // 64 canale (ca un Velodyne HDL-64E)
-    const int points_per_ring = 200; // Rezoluție orizontală
+    const int points_per_ring = 200; // Rezolutie orizontala
 
     for(int ring = 0; ring < num_rings; ring++) {
-        // Unghi vertical (Elevation): Scanăm de la -25 la +25 grade
+        // Unghi vertical (Elevation): -25 la +25 grade
         float vertical_angle = -25.0f + (50.0f * ring / num_rings);
         float vert_rad = vertical_angle * 3.14159f / 180.0f;
 
         for(int i = 0; i < points_per_ring; i++) {
-            // Unghi orizontal (Azimuth): Scanăm larg, -50 la +50 grade
+            // Unghi orizontal (Azimuth): -50 la +50 grade
             float horizontal_angle = -50.0f + (100.0f * i / points_per_ring);
             float horiz_rad = horizontal_angle * 3.14159f / 180.0f;
 
@@ -107,14 +107,14 @@ int main() {
             // Min: 0.5m, Max: ~4.5m
             float depth = 0.5f + (4.0f * (dist_factor * dist_factor)); 
 
-            // Adăugăm zgomot aleator (Noise)
+            // Adaugam zgomot aleator (Noise)
             float noise = ((rand() % 100) / 2000.0f); // +/- 5cm
 
             float4 p;
             // Conversie Sferic -> Cartezian
-            // Z este adâncimea (în fața camerei)
+            // Z este adancimea (in fata camerei)
             p.z = depth + noise;
-            // X și Y se deduc din unghiuri și adâncime
+            // X și Y se deduc din unghiuri si adancime
             p.x = p.z * std::tan(horiz_rad);
             p.y = p.z * std::tan(vert_rad);
             p.w = 1.0f;
