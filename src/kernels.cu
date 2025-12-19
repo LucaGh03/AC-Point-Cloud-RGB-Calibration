@@ -47,14 +47,14 @@ __global__ void overlayPointsKernel(
     int u = (int)(uv.x + 0.5f);
     int v = (int)(uv.y + 0.5f);
 
-    // Desenăm un pătrat de 3x3 pixeli pentru vizibilitate
+    // Desenam un patrat de 3x3 pixeli pentru vizibilitate
     // Loop de la -1 la +1 pe ambele axe
     for (int dy = -1; dy <= 1; dy++) {
         for (int dx = -1; dx <= 1; dx++) {
             int ny = v + dy;
             int nx = u + dx;
 
-            // Verificăm limitele imaginii pentru fiecare pixel din pătrat
+            // Verificam limitele imaginii pentru fiecare pixel din patrat
             if (nx >= 0 && nx < width && ny >= 0 && ny < height) {
                 image[ny * width + nx] = color;
             }
