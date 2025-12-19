@@ -2,8 +2,6 @@
 
 Acest proiect implementează un pipeline complet de **Fuziune Senzorială** (Sensor Fusion) între un senzor LiDAR simulat și o cameră RGB. Proiectul utilizează **CUDA** pentru accelerarea masivă a calculelor de proiecție și randare.
 
-![Rezultat Final](rezultat_final.png)
-
 ## 🚀 Funcționalități
 
 * **Generare Date Sintetice (Velodyne):** Simulează un senzor LiDAR cu 64 de canale, generând date în coordonate polare care sunt convertite în cartezian.
