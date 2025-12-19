@@ -31,18 +31,14 @@ Acest proiect implementează un pipeline complet de **Fuziune Senzorială** (Sen
 ## 💻 Cum se rulează
 
 ```bash
-# 1. Clonează repo-ul
+
 git clone <link-ul-tau-github>
 cd LidarCameraCalib
 
-# 2. Creare folder build
 mkdir build && cd build
 
-# 3. Descărcare imagine test (opțional)
 wget [https://raw.githubusercontent.com/nothings/stb/master/stb_image.h](https://raw.githubusercontent.com/nothings/stb/master/stb_image.h) -O ../include/stb_image.h
-# Asigură-te că ai o imagine 'input.jpg' în folderul build
 
-# 4. Compilare și Rulare
 cmake ..
 make
 ./calibrare_app

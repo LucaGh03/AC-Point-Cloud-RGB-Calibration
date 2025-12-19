@@ -67,13 +67,13 @@ int main() {
     // 2. CONFIGURARE PARAMETRI CAMERĂ
     // ---------------------------------------------------------
     CameraIntrinsics K;
-    // Estimare Focal Length (de obicei width * 0.8 pentru telefoane/webcam)
+    // Estimare Focal Length (de obicei e width * 0.8 pentru telefoane/webcam)
     K.fx = width * 0.8f; 
     K.fy = width * 0.8f;
     K.cx = width / 2.0f;
     K.cy = height / 2.0f;
 
-    // Extrinseci: Setăm la ZERO pentru a alinia tunelul virtual cu centrul camerei
+    // Extrinseci: Setăm la 0 pentru a alinia tunelul virtual cu centrul camerei
     float h_R[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float h_t[3] = {0.0f, 0.0f, 0.0f}; 
 
@@ -96,18 +96,18 @@ int main() {
             float horizontal_angle = -50.0f + (100.0f * i / points_per_ring);
             float horiz_rad = horizontal_angle * 3.14159f / 180.0f;
 
-            // --- TRUC DE ADÂNCIME (TUNEL) ---
-            // Punctele din centru (unghiuri mici) sunt APROAPE (0.5m - fețele voastre)
-            // Punctele de la margine (unghiuri mari) sunt DEPARTE (4.0m - pereții)
+            // --- TUNEL ---
+            // Punctele din centru (unghiuri mici) sunt aproape (0.5m - fetele)
+            // Punctele de la margine (unghiuri mari) sunt departe (4.0m - peretii)
             
-            // Calculăm cât de departe suntem de centrul imaginii (0 to 1.0)
+            // Se calculeaza cat de departe suntem de centrul imaginii (0 to 1.0)
             float dist_factor = (std::abs(horizontal_angle) / 50.0f) + (std::abs(vertical_angle) / 25.0f);
             
-            // Formula parabolica pentru adâncime: 
+            // Formula parabolica pentru adancime: 
             // Min: 0.5m, Max: ~4.5m
             float depth = 0.5f + (4.0f * (dist_factor * dist_factor)); 
 
-            // Adăugăm zgomot aleator (Noise) pentru realism
+            // Adăugăm zgomot aleator (Noise)
             float noise = ((rand() % 100) / 2000.0f); // +/- 5cm
 
             float4 p;
@@ -140,7 +140,7 @@ int main() {
     cudaMalloc(&d_projectedPoints, prjSize);
     cudaMalloc(&d_image, imgSize);
 
-    // Copiem imaginea reală și punctele în GPU
+    // Copiem imaginea reala și punctele în GPU
     cudaMemcpy(d_image, h_img_data, imgSize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_points, h_points.data(), ptsSize, cudaMemcpyHostToDevice);
 
@@ -151,7 +151,7 @@ int main() {
     ProjectPointsCUDA(d_points, numPoints, h_R, h_t, K, d_projectedPoints, width, height);
     
     std::cout << "[GPU] Desenare Overlay (Kernel 2)...\n";
-    uchar3 color = {255, 0, 0}; // ROȘU
+    uchar3 color = {255, 0, 0}; // rosu
     OverlayPointsCUDA(d_image, d_projectedPoints, numPoints, width, height, color);
     
     cudaDeviceSynchronize();
@@ -162,7 +162,7 @@ int main() {
     std::cout << "------------------------------------------------\n";
     std::cout << "[Analysis] Validare Precizie (RMSE)...\n";
     
-    // Luăm rezultatele înapoi pentru verificare
+    // Luam rezultatele inapoi pentru verificare
     std::vector<float2> h_gpu_results(numPoints);
     cudaMemcpy(h_gpu_results.data(), d_projectedPoints, prjSize, cudaMemcpyDeviceToHost);
 
@@ -175,7 +175,7 @@ int main() {
 
         float2 gpu_res = h_gpu_results[i];
 
-        // Comparăm doar dacă punctul e vizibil
+        // Comparam doar dacă punctul e vizibil
         if(u_cpu > 0 && gpu_res.x > 0) {
             float diffX = u_cpu - gpu_res.x;
             float diffY = v_cpu - gpu_res.y;
@@ -201,7 +201,6 @@ int main() {
     stbi_write_png(outFile, width, height, 3, h_result_img.data(), width * 3);
     std::cout << "[Output] Imagine salvata cu succes: " << outFile << "\n";
 
-    // Curățenie
     stbi_image_free(h_img_data);
     cudaFree(d_points);
     cudaFree(d_projectedPoints);
