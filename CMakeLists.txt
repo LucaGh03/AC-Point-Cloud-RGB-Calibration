@@ -34,3 +34,5 @@ endif()
 target_link_libraries(calibrare_app PRIVATE cuda cudart)
 
 message(STATUS "Build type: ${CMAKE_BUILD_TYPE}")
+
+add_executable(test_hls FPGA_HLS/test_bench.cpp FPGA_HLS/lidar_hls.cpp)

@@ -51,9 +51,9 @@ void ProjectPointCPU(float x, float y, float z, const float* R, const float* t, 
 }
 
 int main() {
-    // ---------------------------------------------------------
-    // 1. INCARCARE IMAGINE INPUT
-    // ---------------------------------------------------------
+    
+    // 1. Incarcare imagine input
+
     int width, height, channels;
     unsigned char* h_img_data = stbi_load("input.jpg", &width, &height, &channels, 3);
 
@@ -63,9 +63,7 @@ int main() {
     }
     std::cout << "[Setup] Imagine incarcata: " << width << "x" << height << " (" << channels << " channels)\n";
 
-    // ---------------------------------------------------------
-    // 2. CONFIGURARE PARAMETRI CAMERA
-    // ---------------------------------------------------------
+    // 2. Configurare parametri camera
     CameraIntrinsics K;
     // Estimare Focal Length (de obicei e width * 0.8 pentru telefoane/webcam)
     K.fx = width * 0.8f; 
@@ -77,9 +75,8 @@ int main() {
     float h_R[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
     float h_t[3] = {0.0f, 0.0f, 0.0f}; 
 
-    // ---------------------------------------------------------
-    // 3. GENERARE PUNCTE LIDAR (SIMULARE VELODYNE + TUNEL)
-    // ---------------------------------------------------------
+    // Generare puncte LIDAR
+
     std::cout << "[Data] Generare nor de puncte (Model Velodyne)...\n";
     std::vector<float4> h_points;
     
@@ -96,7 +93,7 @@ int main() {
             float horizontal_angle = -50.0f + (100.0f * i / points_per_ring);
             float horiz_rad = horizontal_angle * 3.14159f / 180.0f;
 
-            // --- TUNEL ---
+            // Tunel
             // Punctele din centru (unghiuri mici) sunt aproape (0.5m - fetele)
             // Punctele de la margine (unghiuri mari) sunt departe (4.0m - peretii)
             
@@ -125,9 +122,8 @@ int main() {
     int numPoints = h_points.size();
     std::cout << "[Data] Generat " << numPoints << " puncte 3D.\n";
 
-    // ---------------------------------------------------------
-    // 4. MEMORIE GPU & INITIALIZARE
-    // ---------------------------------------------------------
+    // Initializare
+
     float4* d_points;
     float2* d_projectedPoints;
     uchar3* d_image;
@@ -144,9 +140,8 @@ int main() {
     cudaMemcpy(d_image, h_img_data, imgSize, cudaMemcpyHostToDevice);
     cudaMemcpy(d_points, h_points.data(), ptsSize, cudaMemcpyHostToDevice);
 
-    // ---------------------------------------------------------
-    // 5. PROCESARE CUDA
-    // ---------------------------------------------------------
+    // Procesare CUDA
+
     std::cout << "[GPU] Proiectie puncte (Kernel 1)...\n";
     ProjectPointsCUDA(d_points, numPoints, h_R, h_t, K, d_projectedPoints, width, height);
     
@@ -156,9 +151,8 @@ int main() {
     
     cudaDeviceSynchronize();
 
-    // ---------------------------------------------------------
-    // 6. VALIDARE CPU & RMSE
-    // ---------------------------------------------------------
+    // Validare CUDA
+
     std::cout << "------------------------------------------------\n";
     std::cout << "[Analysis] Validare Precizie (RMSE)...\n";
     
@@ -191,9 +185,8 @@ int main() {
     }
     std::cout << "------------------------------------------------\n";
 
-    // ---------------------------------------------------------
-    // 7. SALVARE REZULTAT
-    // ---------------------------------------------------------
+    // Salvare rezultat
+
     std::vector<uchar3> h_result_img(width * height);
     cudaMemcpy(h_result_img.data(), d_image, imgSize, cudaMemcpyDeviceToHost);
 
