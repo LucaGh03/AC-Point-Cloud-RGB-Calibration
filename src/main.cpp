@@ -73,7 +73,7 @@ int main() {
 
     // Extrinseci: Setam la 0 pentru a alinia tunelul virtual cu centrul camerei
     float h_R[9] = {1, 0, 0, 0, 1, 0, 0, 0, 1};
-    float h_t[3] = {0.0f, 0.0f, 0.0f}; 
+    float h_t[3] = {0.0f, 0.0f, 2.0f};
 
     // Generare puncte LIDAR
 
